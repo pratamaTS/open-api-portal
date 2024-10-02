@@ -1,1 +1,0 @@
-import{p as n,ac as r,l,Q as u}from"./index-DCsPtwhx.js";const f=n({eager:Boolean},"lazy");function m(e,o){const a=r(!1),s=l(()=>a.value||e.eager||o.value);u(o,()=>a.value=!0);function t(){e.eager||(a.value=!1)}return{isBooted:a,hasContent:s,onAfterLeave:t}}export{f as m,m as u};

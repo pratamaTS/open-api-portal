@@ -1,5 +1,5 @@
 <script setup>
-import logo from '@images/berkompeten_logo.svg?raw';
+import logo from '@images/yodu.svg?raw';
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
 import { useDisplay } from 'vuetify';
 
