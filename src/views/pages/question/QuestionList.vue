@@ -1,0 +1,355 @@
+<script setup>
+import axios from 'axios';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const token = localStorage.getItem('token');
+const datas = ref([]);
+const searchQuery = ref('');
+const selectedPacket = ref(null);
+const questionPacketsOption = ref([]);
+const pagination = ref({
+  current_page: 1,
+  from: 1,
+  last_page: 1,
+  next_page_url: null,
+  prev_page_url: null,
+  total: 0,
+});
+
+const isBulkUpsertDialogOpen = ref(false);
+const bulkUpsertFile = ref(null);
+const successMessage = ref('');
+const errorMessage = ref('');
+
+const fetchData = async (page = 1, questionPacketId = null, searchQuery = '') => {
+  try {
+    let url = `https://gateway.berkompeten.com/api/admin/master/question?page=${page}`;
+    if (questionPacketId) {
+      console.log("Q: ", questionPacketId)
+      url += `&question_packet_id=${questionPacketId}`;
+    }
+    if (searchQuery) {
+      url += `&search=${searchQuery.toLowerCase()}`;
+    }
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    datas.value = response.data.data.data;
+    pagination.value = response.data.data;
+  } catch (error) {
+    console.log("err: ", error);
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      router.push('/login');
+    }
+  }
+};
+
+const fetchQuestionPackets = async () => {
+  try {
+    const response = await axios.get('https://gateway.berkompeten.com/api/admin/master/question-packet/fetch-all', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    questionPacketsOption.value = response.data.data.map(d => ({
+      id: d.id,
+      name: d.name,
+    }));
+  } catch (error) {
+    console.error('Error fetching question packet options:', error);
+  }
+};
+
+watch([selectedPacket, searchQuery], ([newPacketValue, newSearchValue]) => {
+  fetchData(1, newPacketValue, newSearchValue);
+});
+
+const nextPage = () => {
+  var questionPacketId = null
+  if (selectedPacket.value) {
+    questionPacketId = selectedPacket.value
+  }
+
+  if (pagination.value.next_page_url) {
+    fetchData(pagination.value.current_page + 1, questionPacketId, searchQuery.value);
+  }
+};
+
+const prevPage = () => {
+  var questionPacketId = null
+  if (selectedPacket.value) {
+    questionPacketId = selectedPacket.value
+  }
+  
+  if (pagination.value.prev_page_url) {
+    fetchData(pagination.value.current_page - 1, questionPacketId, searchQuery.value);
+  }
+};
+
+const createData = () => {
+  localStorage.removeItem('question_id');
+  router.push(`/question/detail`);
+};
+
+const downloadTemplate = async () => {
+  try {
+    const response = await axios.get(`https://gateway.berkompeten.com/api/admin/master/question/download-template`, {
+      responseType: 'blob',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'questions_template.xlsx');
+    document.body.appendChild(link);
+    link.click();
+  } catch (error) {
+    console.error("Error downloading template:", error);
+  }
+};
+
+const bulkUpsert = () => {
+  localStorage.removeItem('question_id');
+  isBulkUpsertDialogOpen.value = true;
+};
+
+const closeBulkUpsertDialog = () => {
+  isBulkUpsertDialogOpen.value = false;
+  bulkUpsertFile.value = null;
+  successMessage.value = '';
+  errorMessage.value = '';
+};
+
+const handleBulkUpsert = async () => {
+  if (!bulkUpsertFile.value) {
+    errorMessage.value = 'Please upload a file'
+    setTimeout(() => {
+      errorMessage.value = ''
+    }, 5000);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', bulkUpsertFile.value[0]);
+
+  console.log("FILE: ", bulkUpsertFile.value[0])
+
+  try {
+    const response = await axios.post('https://gateway.berkompeten.com/api/admin/master/question/bulk-upsert', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    successMessage.value = 'Bulk upsert completed successfully';
+    setTimeout(() => {
+      closeBulkUpsertDialog();
+      fetchData(pagination.value.current_page); 
+    }, 2000);
+  } catch (error) {
+    if (error.response && error.response.status === 422) {
+      errorMessage.value = 'Validation error: ' + JSON.stringify(error.response.data.message.file[0]);
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 5000);
+    } else {
+      errorMessage.value = 'Error bulk upsert: ' + error.response.data.message
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 5000);
+    }
+  }
+};
+
+const editData = (id) => {
+  localStorage.setItem('question_id', id)
+  router.push(`/question/detail`);
+};
+
+const deleteData = async (id) => {
+  try {
+    const response = await axios.delete(`https://gateway.berkompeten.com/api/admin/master/question?question_id=${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    successMessage.value = response.data.message;
+    fetchData(pagination.value.current_page);
+  } catch (error) {
+    console.log("err: ", error);
+    if (error.response && error.response.data) {
+      errorMessage.value = error.response.data.message || 'An error occurred while deleting. Please try again.';
+    } else {
+      errorMessage.value = 'An error occurred while deleting. Please try again.';
+    }
+  }
+};
+
+onMounted(() => {
+  fetchData();
+  fetchQuestionPackets();
+});
+</script>
+
+<template>
+  <div>
+    <VCardTitle class="mb-4">Question Management</VCardTitle>
+    <div class="table-header">
+      <VTextField v-model="searchQuery" label="Search" class="mx-3" solo />
+      <VSelect
+        v-model="selectedPacket"
+        :items="questionPacketsOption"
+        item-value="id"
+        item-title="name"
+        label="Filter by Packet"
+        class="mx-3"
+        solo
+        clearable
+      />
+      <VBtn color="#0080ff" class="mx-1" @click="createData">Create</VBtn>
+      <VBtn color="#0080ff" class="mx-1" @click="bulkUpsert">Bulk Upsert</VBtn>
+      <VBtn color="#0080ff" class="mx-1" @click="downloadTemplate">Download Template</VBtn>
+    </div>
+    <VCardText>
+      <VAlert v-if="successMessage" type="success" dismissible @click:close="successMessage = ''">
+        {{ successMessage }}
+      </VAlert>
+      <VAlert v-if="errorMessage" type="error" dismissible @click:close="errorMessage = ''">
+        {{ errorMessage }}
+      </VAlert>
+    </VCardText>
+    <div class="table-container">
+      <VTable fixed-header>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Packet Name</th>
+            <th>Subtopic Name</th>
+            <th>Question Number</th>
+            <th>Question</th>
+            <th>Option A</th>
+            <th>Option B</th>
+            <th>Option C</th>
+            <th>Option D</th>
+            <th>Option E</th>
+            <th>Correct Answer</th>
+            <th>Discussion</th>
+            <th>Is Active</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="question in datas" :key="question.id">
+            <td>{{ question.id }}</td>
+            <td>{{ question.question_packet.name }}</td>
+            <td>{{ question.subtopic_list.subtopic }}</td>
+            <td>{{ question.question_number }}</td>
+            <td>{{ question.question }}</td>
+            <td>{{ question.option_a }}</td>
+            <td>{{ question.option_b }}</td>
+            <td>{{ question.option_c }}</td>
+            <td>{{ question.option_d }}</td>
+            <td>{{ question.option_e }}</td>
+            <td>{{ question.correct_answer }}</td>
+            <td v-html="question.discussion"></td>
+            <td>{{ question.is_active }}</td>
+            <td>{{ question.created_date }}</td>
+            <td>
+              <div v-if="question.is_used === false">
+                <VBtn icon @click="editData(question.id)" class="mx-1" color="transparent" style=" padding: 0; border: none;background-color: transparent; box-shadow: none;">
+                  <VIcon style="color: orange;">ri-edit-line</VIcon>
+                </VBtn>
+                <VBtn icon @click="deleteData(question.id)" class="mx-1" color="transparent" style=" padding: 0; border: none;background-color: transparent; box-shadow: none;">
+                  <VIcon style="color: red;">ri-delete-bin-line</VIcon>
+                </VBtn>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </VTable>
+    </div>
+    <div class="pagination">
+      <VBtn @click="prevPage" :disabled="!pagination.prev_page_url" class="mx-1" color="#0080ff">Previous</VBtn>
+      <VBtn @click="nextPage" :disabled="!pagination.next_page_url" class="mx-1" color="#0080ff">Next</VBtn>
+    </div>
+    <!-- Bulk Upsert Modal -->
+    <VDialog v-model="isBulkUpsertDialogOpen" max-width="500px">
+      <VCard>
+        <VCardTitle class="text-h5">Bulk Upsert</VCardTitle>
+        <VCardText>
+          <VFileInput
+            v-model="bulkUpsertFile"
+            label="Upload Excel File"
+            accept=".csv,.xlsx,.xls"
+            prepend-icon="mdi-upload"
+          />
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn color="blue darken-1" text @click="closeBulkUpsertDialog">Cancel</VBtn>
+          <VBtn color="#0080ff" text @click="handleBulkUpsert">Upload</VBtn>
+        </VCardActions>
+        <VCardText>
+          <VAlert v-if="successMessage" type="success" dismissible @click:close="successMessage = ''">
+            {{ successMessage }}
+          </VAlert>
+          <VAlert v-if="errorMessage" type="error" dismissible @click:close="errorMessage = ''">
+            {{ errorMessage }}
+          </VAlert>
+        </VCardText>
+      </VCard>
+    </VDialog>
+  </div>
+</template>
+
+<style scoped>
+.table-header {
+  display: flex;
+  align-items: center;
+  margin-block-end: 16px;
+}
+
+.table-container {
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 10%);
+  max-block-size: 500px;
+  overflow-y: auto;
+}
+
+.v-table thead tr {
+  background-color: #f5f5f5;
+}
+
+.v-table th, .v-table td {
+  border-block-end: 1px solid #e0e0e0;
+  padding-block: 12px;
+  padding-inline: 8px;
+  text-align: start;
+}
+
+.v-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: 16px;
+}
+
+.v-btn {
+  margin-block: 0;
+  margin-inline: 4px;
+}
+</style>
