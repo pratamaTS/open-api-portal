@@ -1,7 +1,7 @@
 <script setup>
-import logo from '@images/berkompeten_logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
 import authV1MaskLight from '@images/pages/auth-v1-mask-light.png'
+import logo from '@images/yodu.svg?raw'
 import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'

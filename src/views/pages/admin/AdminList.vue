@@ -25,17 +25,55 @@ const errorMessage = ref('');
 
 const fetchData = async (page = 1, searchQuery = '') => {
   try {
-    let url = `https://gateway.berkompeten.com/api/admin/master/admin?page=${page}`;
-    if (searchQuery) {
-      url += `&search=${searchQuery.toLowerCase()}`;
-    }
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    datas.value = response.data.data.data;
-    pagination.value = response.data.data;
+    // let url = `https://gateway.berkompeten.com/api/admin/master/admin?page=${page}`;
+    // if (searchQuery) {
+    //   url += `&search=${searchQuery.toLowerCase()}`;
+    // }
+    // const response = await axios.get(url, {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    // });
+    datas.value = [
+        {
+            "name": "Yodu Partner",
+            "email": "partner@yodu.id",
+            "created_at": "2024-07-01T13:01:55.000000Z",
+            "is_active": true,
+            "created_date": "01 July 2024 20:01:55",
+            "is_superadmin": true
+        }
+    ];
+    pagination.value = {
+      "current_page": 1,
+      "first_page_url": "https://gateway.berkompeten.com/api/admin/master/admin?page=1",
+      "from": 1,
+      "last_page": 1,
+      "last_page_url": "https://gateway.berkompeten.com/api/admin/master/admin?page=1",
+      "links": [
+          {
+              "url": null,
+              "label": "&laquo; Previous",
+              "active": false
+          },
+          {
+              "url": "https://gateway.berkompeten.com/api/admin/master/admin?page=1",
+              "label": "1",
+              "active": true
+          },
+          {
+              "url": null,
+              "label": "Next &raquo;",
+              "active": false
+          }
+      ],
+      "next_page_url": null,
+      "path": "https://gateway.berkompeten.com/api/admin/master/admin",
+      "per_page": 10,
+      "prev_page_url": null,
+      "to": 1,
+      "total": 1
+    };
   } catch (error) {
     console.log("err: ", error);
     if (error.response && error.response.status === 401) {

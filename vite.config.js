@@ -68,6 +68,7 @@ export default defineConfig({
         target: "http://localhost:8000",
         historyApiFallback: true,
       }
-    }
+    },
+    port: 5000
   },
 })

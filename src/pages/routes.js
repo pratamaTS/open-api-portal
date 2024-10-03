@@ -9,36 +9,36 @@ export const routes = [
         component: () => import('@/pages/dashboard.vue'),
       },
       {
-        path: 'question-packet-management',
-        component: () => import('@/pages/question-packet-management.vue'),
+        path: 'report-api',
+        component: () => import('@/pages/api-report.vue'),
       },
       {
-        path: 'question-management',
-        component: () => import('@/pages/question-management.vue'),
+        path: 'report-tagihan',
+        component: () => import('@/pages/api-report.vue'),
       },
       {
-        path: 'membership-management',
-        component: () => import('@/pages/membership-management.vue'),
-      },
-      {
-        path: 'category-lab-management',
-        component: () => import('@/pages/category-lab-management.vue'),
-      },
-      {
-        path: 'admin-management',
-        component: () => import('@/pages/admin-management.vue'),
+        path: 'settlement-history',
+        component: () => import('@/pages/api-report.vue'),
       },
       {
         path: 'user-management',
-        component: () => import('@/pages/user-management.vue'),
+        component: () => import('@/pages/admin-management.vue'),
       },
       {
-        path: 'university-management',
-        component: () => import('@/pages/university-management.vue'),
+        path: 'role-management',
+        component: () => import('@/pages/admin-management.vue'),
       },
       {
-        path: 'educational-status-management',
-        component: () => import('@/pages/educational-status-management.vue'),
+        path: 'access-management',
+        component: () => import('@/pages/admin-management.vue'),
+      },
+      {
+        path: 'audit-trail',
+        component: () => import('@/pages/admin-management.vue'),
+      },
+      {
+        path: 'company-transaction-limit',
+        component: () => import('@/pages/admin-management.vue'),
       },
       {
         path: 'exam-dates-management',

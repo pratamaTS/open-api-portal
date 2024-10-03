@@ -10,7 +10,7 @@ const router = useRouter();
 
 // Live Mode Dropdown Data
 const liveModes = ['Live Mode', 'Test Mode'];
-const selectedLiveMode = ref(null);
+const selectedLiveMode = ref('Live Mode');
 
 // Deposit View Data
 const depositAmount = ref(25000); // Replace this with your actual deposit value
@@ -58,8 +58,8 @@ const menuItems = {
       },
     ],
     icon: 'ri-file-line',
-    badgeClass: 'ri-file-line',
-    badgeContent: 'ri-file-line'
+    badgeClass: '',
+    badgeContent: ''
   },
   profile: {
     title: 'Profile',
@@ -75,9 +75,9 @@ const menuItems = {
         icon: 'ri-building-4-line',
       },
     ],
-    icon: 'ri-file-line',
-    badgeClass: 'ri-file-line',
-    badgeContent: 'ri-file-line'
+    icon: 'ri-building-4-line',
+    badgeClass: '',
+    badgeContent: ''
   },
   userManagement: {
     title: 'User Management',
@@ -103,9 +103,9 @@ const menuItems = {
         icon: 'ri-time-line',
       },
     ],
-    icon: 'ri-file-line',
-    badgeClass: 'ri-file-line',
-    badgeContent: 'ri-file-line'
+    icon: 'ri-user-line',
+    badgeClass: '',
+    badgeContent: ''
   },
   configuration: {
     title: 'Configuration',
@@ -116,9 +116,9 @@ const menuItems = {
         icon: 'ri-settings-3-line',
       },
     ],
-    icon: 'ri-file-line',
-    badgeClass: 'ri-file-line',
-    badgeContent: 'ri-file-line'
+    icon: 'ri-settings-3-line',
+    badgeClass: '',
+    badgeContent: ''
   },
   information: {
     title: 'Information',
@@ -134,9 +134,9 @@ const menuItems = {
         icon: 'ri-book-open-line',
       },
     ],
-    icon: 'ri-file-line',
-    badgeClass: 'ri-file-line',
-    badgeContent: 'ri-file-line'
+    icon: 'ri-information-line',
+    badgeClass: '',
+    badgeContent: ''
   },
 };
 
@@ -168,21 +168,21 @@ onMounted(async () => {
   <v-select
     v-model="selectedLiveMode"
     :items="liveModes"
-    label="Live Mode"
+    label="Mode"
     outlined
     class="mb-4"
   ></v-select>
 
   <!-- 👉 Deposit View (Click to open money page) -->
-  <v-card class="mb-4" @click="goToMoneyPage" outlined>
+  <!-- <v-card class="mb-4" @click="goToMoneyPage" outlined>
     <v-card-text>
       <div class="d-flex justify-space-between align-center">
         <span>Deposit:</span>
         <strong>{{ formattedDeposit }}</strong>
       </div>
     </v-card-text>
-  </v-card>
-  
+  </v-card> -->
+
   <!-- 👉 Dashboards -->
   <VerticalNavLink
       :item="{

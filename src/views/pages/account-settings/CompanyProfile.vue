@@ -141,7 +141,7 @@ const currencies = [
 <template>
   <VRow>
     <VCol cols="12">
-      <VCard title="Account Details">
+      <VCard title="Company Profile Details">
         <VCardText class="d-flex">
           <!-- 👉 Avatar -->
           <VAvatar

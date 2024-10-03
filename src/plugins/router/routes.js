@@ -9,31 +9,44 @@ export const routes = [
         component: () => import('@/pages/dashboard.vue'),
       },
       {
-        path: 'question-packet-management',
-        component: () => import('@/pages/question-packet-management.vue'),
-      },{
-        path: 'topic-management',
-        component: () => import('@/pages/topic-management.vue'),
+        path: 'report-api',
+        component: () => import('@/pages/api-report.vue'),
       },
       {
-        path: 'subtopic-management',
-        component: () => import('@/pages/subtopic-management.vue'),
+        path: 'report-tagihan',
+        component: () => import('@/pages/api-report.vue'),
       },
       {
-        path: 'media-management',
-        component: () => import('@/pages/media-management.vue'),
+        path: 'settlement-history',
+        component: () => import('@/pages/api-report.vue'),
       },
       {
-        path: 'question-management',
-        component: () => import('@/pages/question-management.vue'),
+        path: 'company-profile',
+        component: () => import('@/pages/company-profile.vue'),
       },
       {
-        path: 'question/detail',
-        component: () => import('@/pages/question-detail.vue'),
+        path: 'client-profile',
+        component: () => import('@/pages/company-profile.vue'),
       },
       {
-        path: 'topic/detail',
-        component: () => import('@/pages/topic-detail.vue'),
+        path: 'user-management',
+        component: () => import('@/pages/admin-management.vue'),
+      },
+      {
+        path: 'role-management',
+        component: () => import('@/pages/admin-management.vue'),
+      },
+      {
+        path: 'access-management',
+        component: () => import('@/pages/admin-management.vue'),
+      },
+      {
+        path: 'audit-trail',
+        component: () => import('@/pages/admin-management.vue'),
+      },
+      {
+        path: 'company-transaction-limit',
+        component: () => import('@/pages/admin-management.vue'),
       },
       {
         path: 'subtopic/detail',
